@@ -3,16 +3,6 @@ import { PieChart } from "@mui/x-charts/PieChart";
 
 function OrdersPieChart() {
 
-    const categories = [
-        "Coffee",
-        "Drinks",
-        "Teas",
-        "Meals",
-        "Sandwiches",
-        "Pastries",
-        "Desserts",
-    ];
-
     // Get sales from localStorage
     const sales = useMemo(() => {
         const savedSales = localStorage.getItem("sales");
@@ -44,13 +34,13 @@ function OrdersPieChart() {
     const colors = useMemo(() => {
 
         const availableColors = [
-            "#6B4630", // Coffee brown
-            "#A66A3F", // Caramel
-            "#C68B59", // Warm tan
-            "#7A6A4F", // Olive
-            "#8A5A6B", // Dusty rose
-            "#647A6A", // Sage
-            "#6B7185", // Muted blue
+            "#6B4630",
+            "#A66A3F",
+            "#C68B59",
+            "#7A6A4F",
+            "#8A5A6B",
+            "#647A6A",
+            "#6B7185",
         ];
 
         return shuffleArray(availableColors);
@@ -69,43 +59,35 @@ function OrdersPieChart() {
             (sale) => sale.date === today
         );
 
-        const data = categories
-            .map((category, index) => {
+        // Store quantity for each item
+        const itemTotals = {};
 
-                const quantity = todaySales.reduce(
-                    (total, sale) => {
+        todaySales.forEach((sale) => {
 
-                        const categoryItems =
-                            (sale.items || []).filter(
-                                (item) =>
-                                    item.category === category
-                            );
+            (sale.items || []).forEach((item) => {
 
-                        return (
-                            total +
-                            categoryItems.reduce(
-                                (sum, item) =>
-                                    sum +
-                                    Number(
-                                        item.quantity || 0
-                                    ),
-                                0
-                            )
-                        );
-                    },
-                    0
+                if (!itemTotals[item.name]) {
+                    itemTotals[item.name] = 0;
+                }
+
+                itemTotals[item.name] += Number(
+                    item.quantity || 0
                 );
 
-                return {
-                    id: index,
-                    value: quantity,
-                    label: category,
-                };
-            })
-            // Remove categories with no orders
+            });
+
+        });
+
+        // Convert object into chart data
+        const data = Object.entries(itemTotals)
+            .map(([name, quantity], index) => ({
+                id: index,
+                value: quantity,
+                label: name,
+            }))
             .filter((item) => item.value > 0);
 
-        // Randomize the order of the slices
+        // Randomize slice order
         return shuffleArray(data);
 
     }, [sales]);
@@ -119,7 +101,7 @@ function OrdersPieChart() {
             </h2>
 
             <p className="mt-1 text-sm text-[#6B4630]">
-                Orders by category
+                Orders by item
             </p>
 
             {/* Chart */}

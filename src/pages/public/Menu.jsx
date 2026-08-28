@@ -49,7 +49,7 @@ function Menu() {
 
             <audio
                 ref={audioRef}
-                src="../../../public/pagkakasarap.mp3"
+                  src="/pagkakasarap.mp3"
                 onEnded={() => setIsPlaying(false)}
             />
 
