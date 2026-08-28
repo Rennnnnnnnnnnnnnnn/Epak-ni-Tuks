@@ -35,8 +35,51 @@ function EditMenuItemModal({ item, onClose, onSave }) {
 
         const reader = new FileReader();
 
-        reader.onloadend = () => {
-            setImage(reader.result);
+        reader.onload = (event) => {
+            const img = new Image();
+
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+
+                const maxWidth = 800;
+                const maxHeight = 800;
+
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    const scale = Math.min(
+                        maxWidth / width,
+                        maxHeight / height
+                    );
+
+                    width *= scale;
+                    height *= scale;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.drawImage(
+                    img,
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+                // Compress image
+                const compressedImage = canvas.toDataURL(
+                    "image/jpeg",
+                    0.7
+                );
+
+                setImage(compressedImage);
+            };
+
+            img.src = event.target.result;
         };
 
         reader.readAsDataURL(file);
@@ -120,7 +163,7 @@ function EditMenuItemModal({ item, onClose, onSave }) {
 
                             </div>
 
-                 
+
                             {/* Image File Upload */}
                             <div className="mt-5">
                                 <label className="mb-2 block text-sm font-semibold">
